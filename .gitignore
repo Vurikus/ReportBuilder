@@ -1,0 +1,14 @@
+.idea/compiler.xml
+.idea/dataSources.local.xml
+.idea/dataSources/
+.idea/misc.xml
+.idea/vcs.xml
+.idea/modules.xml
+.idea/uiDesigner.xml
+.idea/workspace.xml
+.idea/artifacts/
+target/
+*.iml
+.idea/*
+*/persistence.xml
+
