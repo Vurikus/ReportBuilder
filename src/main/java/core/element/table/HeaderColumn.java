@@ -1,6 +1,7 @@
 package core.element.table;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -95,7 +96,7 @@ public class HeaderColumn implements Comparable<HeaderColumn>{
     }
 
     public List<HeaderColumn> getChildren() {
-        return children;
+        return Collections.unmodifiableList(children);
     }
 
     public Position getPosition() {

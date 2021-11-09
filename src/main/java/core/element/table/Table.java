@@ -121,7 +121,7 @@ public class Table<T extends TableRowPresentation> implements Element {
     }
 
     public SortedSet<HeaderColumn> getHeaders() {
-        return headers;
+        return Collections.unmodifiableSortedSet(headers);
     }
 
     public Style getHeaderStyle() {
@@ -148,6 +148,10 @@ public class Table<T extends TableRowPresentation> implements Element {
 
     public boolean getAutoSizeColumn() {
         return autoSizeColumn;
+    }
+
+    public int getColumnCount() {
+        return columnCount;
     }
 
     /**

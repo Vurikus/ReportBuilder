@@ -30,6 +30,7 @@ public class ColorConstants {
      */
     public static byte[] getColorRGB(String rgb){
         int i = Integer.decode(rgb);
+        int a = i >> 24 & 255;
         int r = i >> 16 & 255;
         int g = i >> 8 & 255;
         int b = i & 255;

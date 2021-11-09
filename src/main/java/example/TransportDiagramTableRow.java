@@ -16,6 +16,9 @@ import java.util.Comparator;
 @HeaderStyle(backgroundColor = ColorConstants.GRAY)
 @TextStyle(h_align = HorizontalAlignment.CENTER, height = 400)
 @MultiJoinTableColumn(values = {
+        @JoinTableColumn(firstColumn = 0, lastColumn = 3, name = "SUPER PUPER TOP LEVEL", level = 5),
+        @JoinTableColumn(firstColumn = 0, lastColumn = 3, name = "SUPER TEST LEVEL", level = 4),
+        @JoinTableColumn(firstColumn = 1, lastColumn = 3, name = "SUB TEST LEVEL", level = 3),
         @JoinTableColumn(firstColumn = 2, lastColumn = 3, name = "Транспорт"),
         @JoinTableColumn(firstColumn = 4, lastColumn = 7, name = "Время работы транспорта", level = 3),
         @JoinTableColumn(firstColumn = 5, lastColumn = 7, name = "Время [мин]")
