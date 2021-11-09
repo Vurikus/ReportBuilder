@@ -27,6 +27,6 @@ public class Main {
         IntervalDate interval = new IntervalDate(start, end);
 
         ExampleReportManager manager = new ExampleReportManager();
-        manager.createTransportReport(Format.EXCEL, interval);
+        manager.createTransportReport(Format.PDF, interval);
     }
 }
