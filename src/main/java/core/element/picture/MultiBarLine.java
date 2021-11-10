@@ -169,6 +169,7 @@ public class MultiBarLine implements PictureElement {
         this.height = height;
     }
 
+    @Override
     public int getWidth() {
         return width;
     }

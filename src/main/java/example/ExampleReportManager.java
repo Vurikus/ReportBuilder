@@ -21,10 +21,10 @@ public class ExampleReportManager extends ReportManager {
         PrintSetting ps = this.getDefaultPrintSetting();
         DocumentConstructor constructor = DocumentConstructorFactory.getConstructor(format);
         for (Report report : reports) {
-            constructor.createPageAndSetCurrent(report.getReportName());
+            constructor.createNewPageAndSetCurrent(report.getReportName());
             this.createElementsFromReport(constructor, report);
             constructor.setPrintSetting(constructor.getCurrentPageIndex(), ps);
         }
-        return constructor.writeToFile(fileName);
+        return constructor.writeToFile();
     }
 }

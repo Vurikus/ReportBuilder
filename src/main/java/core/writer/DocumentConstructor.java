@@ -13,7 +13,7 @@ import java.nio.file.Path;
  */
 public interface DocumentConstructor {
 
-    int createPageAndSetCurrent(String pageName);
+    int createNewPageAndSetCurrent(String pageName);
     int getCurrentPageIndex();
 
     <T extends TableRowPresentation> void createTable(Table<T> table);
@@ -23,5 +23,5 @@ public interface DocumentConstructor {
     void setPrintSetting(PrintSetting ps);
     void setPrintSetting(int pageIndex, PrintSetting ps);
 
-    Path writeToFile(String fileName) throws IOException;
+    Path writeToFile() throws IOException;
 }

@@ -73,4 +73,9 @@ public class TextBlock implements Element {
     public void setStyle(Style style) {
         this.style = style;
     }
+
+    @Override
+    public int getWidth() {
+        return rightPosition - leftPosition;
+    }
 }

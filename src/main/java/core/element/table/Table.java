@@ -154,6 +154,11 @@ public class Table<T extends TableRowPresentation> implements Element {
         return columnCount;
     }
 
+    @Override
+    public int getWidth() {
+        return columnCount;
+    }
+
     /**
      * PRIVATE METHODS
      */

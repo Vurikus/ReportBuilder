@@ -50,6 +50,11 @@ public class TableRow {
     public void setHeight(short height) {
         this.height = height;
     }
+
+    public short getReadIndex() {
+        return readIndex;
+    }
+
     /**
      * INNER CLASS
      */

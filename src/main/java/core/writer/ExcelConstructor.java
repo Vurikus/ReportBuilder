@@ -30,6 +30,7 @@ public class ExcelConstructor implements DocumentConstructor {
     private final List<Sheet> sheets;
     private final Map<Style, CellStyle> styles;
     private Sheet currentSheet;
+    private String pathname;
 
     /**
      * CONSTRUCTORS
@@ -38,6 +39,7 @@ public class ExcelConstructor implements DocumentConstructor {
         book = new XSSFWorkbook();
         sheets = new ArrayList<>();
         styles = new HashMap<>();
+
     }
 
     /**
@@ -51,7 +53,8 @@ public class ExcelConstructor implements DocumentConstructor {
         return book.getSheetIndex(currentSheet);
     }
 
-    public int createPageAndSetCurrent(String sheetName) {
+    public int createNewPageAndSetCurrent(String sheetName) {
+        if(currentSheet == null) this.pathname = sheetName + "_" + new Date().getTime() + ".xlsx";
         Sheet sh = book.createSheet(sheetName);
         sheets.add(sh);
         currentSheet = sh;
@@ -59,9 +62,8 @@ public class ExcelConstructor implements DocumentConstructor {
     }
 
     @Override
-    public Path writeToFile(String fileName) throws IOException {
+    public Path writeToFile() throws IOException {
         long time = new Date().getTime();
-        String pathname = fileName + "_" + time + ".xlsx";
         File file = new File("../" + pathname);
         try (FileOutputStream fos = new FileOutputStream(file)) {
             book.write(fos);

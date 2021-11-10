@@ -7,4 +7,5 @@ public interface Element {
     int getLeftPosition();
     int getRightPosition();
     int getHeight();
+    int getWidth();
 }

@@ -2,6 +2,7 @@ package core.writer;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import core.element.picture.MultiBarLine;
 import core.element.picture.PictureElement;
 import core.element.table.HeaderColumn;
 import core.element.table.Table;
@@ -10,9 +11,10 @@ import core.element.text.TextBlock;
 import core.presentation.TableRowPresentation;
 import core.presentation.style.Style;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
@@ -22,6 +24,8 @@ import java.util.List;
 public class PdfConstructor implements DocumentConstructor {
 
     private final Document document;
+    private PdfWriter writer;
+    private String pathname;
     private Map<Style, PdfStyle> styles;
 
 //    private BaseFont baseFont;
@@ -32,46 +36,61 @@ public class PdfConstructor implements DocumentConstructor {
     PdfConstructor() {
         document = new Document();
         styles = new HashMap<>();
+
+//        this.pathname = fileName + "_" + new Date().getTime() + ".pdf";
+//        File file = new File("../" + pathname);
 //        try {
-//            baseFont = BaseFont.createFont("font.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-//        }catch(Exception e){
+//            writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+//        } catch (DocumentException | FileNotFoundException e) {
 //            e.printStackTrace();
-//            try {
-//                baseFont = BaseFont.createFont();
-//            } catch (DocumentException | IOException ex) {
-//                ex.printStackTrace();
-//            }
 //        }
     }
 
     /**
      * METHODS
      */
+
     @Override
-    public int createPageAndSetCurrent(String pageName) {
-        return 0;
+    public int createNewPageAndSetCurrent(String pageName) {
+        if(writer == null){
+            this.pathname = pageName + "_" + new Date().getTime() + ".pdf";
+            File file = new File("../" + pathname);
+            try {
+                writer = PdfWriter.getInstance(document, new FileOutputStream(file));
+            } catch (DocumentException | FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            document.setPageSize(PageSize.A4.rotate());
+            document.open();
+        }
+//        if(!document.isOpen()) document.open();
+        document.newPage();
+        return this.getCurrentPageIndex();
     }
 
     @Override
     public int getCurrentPageIndex() {
-        return 0;
+        return this.document.getPageNumber();
     }
 
     @Override
     public <T extends TableRowPresentation> void createTable(Table<T> table) {
         try {
-            PdfWriter.getInstance(document, new FileOutputStream("iTextTable.pdf"));
-            document.setPageSize(PageSize.A4.rotate());
-            document.open();
+//            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("iTextTable.pdf"));
 
+
+
+
+//            writer.setPageEmpty(false);
+//            document.newPage();
             this.fillStyles(table.getAllStyles());
             float[] relativeColumns = new float[table.getColumnCount()];
             int arrIndex = 0;
 
-            for(int i = table.getLeftPosition(); i <= table.getRightPosition(); i++){
+            for (int i = table.getLeftPosition(); i <= table.getRightPosition(); i++) {
                 int columnWidth = table.getColumnWidth(i);
-                if(columnWidth == -1) columnWidth = 3000;
-                float width = (float)columnWidth / 50;
+                if (columnWidth == -1) columnWidth = 3000;
+                float width = (float) columnWidth / 50;
                 relativeColumns[arrIndex] = width;
                 arrIndex++;
             }
@@ -83,10 +102,9 @@ public class PdfConstructor implements DocumentConstructor {
             this.createTableHeaders(table, pdfTable);
             this.createTableBody(table, pdfTable);
 
-
             document.add(pdfTable);
-            document.close();
-        }catch(Exception e){
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -107,18 +125,17 @@ public class PdfConstructor implements DocumentConstructor {
         int i = 0;
         int bufferLength = table.getColumnCount();
 
-        while(i < headers.size()){
+        while (i < headers.size()) {
             HeaderColumn hc = headers.get(i);
             PdfPCell cell = new PdfPCell();
             this.applyStyleToCell(cell, headerStyle);
             int rowSpan;
-            if(hc.hasChild()) {
+            if (hc.hasChild()) {
                 rowSpan = 1;
                 List<HeaderColumn> children = new ArrayList<>(hc.getChildren());
                 children.sort(Comparator.comparing(HeaderColumn::getStartPosition));
                 headers.addAll(children);
-            }
-            else {
+            } else {
                 bufferLength--;
                 rowSpan = maxLevel - currentRow + 1;
             }
@@ -130,8 +147,8 @@ public class PdfConstructor implements DocumentConstructor {
             cell.setPhrase(new Phrase(hc.getName(), font));
             pdfTable.addCell(cell);
 
-            if(hc.getLastPosition() == table.getRightPosition() || (hc.getLength() == bufferLength && hc.getLevel() > 1)) {
-                currentRow ++;
+            if (hc.getLastPosition() == table.getRightPosition() || (hc.getLength() == bufferLength && hc.getLevel() > 1)) {
+                currentRow++;
             }
             i++;
         }
@@ -149,8 +166,27 @@ public class PdfConstructor implements DocumentConstructor {
                 PdfPCell cell = new PdfPCell();
                 this.applyStyleToCell(cell, st);
 
-                if(data instanceof PictureElement) System.out.println("picture");
-                else if(data != null) {
+                if (data instanceof PictureElement){
+                    try {
+                        PictureElement pe = (PictureElement) data;
+                        if(pe instanceof MultiBarLine) {
+                            short rowHeight = tr.getHeight();
+                            int columnIndex = table.getLeftPosition() + tr.getReadIndex();
+                            int columnWidth = table.getColumnWidth(columnIndex);
+                            if(columnWidth != -1){
+                                float factor = (float) columnWidth / rowHeight;
+                                int a = Math.round(pe.getWidth() / factor);
+                                pe.resize(pe.getWidth(), a);
+                            }
+                        }
+                        Image img = Image.getInstance(pe.toByteArray());
+                        img.scaleAbsoluteHeight(cell.getHeight());
+                        cell.setImage(img);
+                    } catch (IOException | BadElementException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else if (data != null) {
                     PdfStyle pdfStyle = this.styles.get(st);
                     Font font = pdfStyle != null ? pdfStyle.getFont() : PdfStyle.convertFont(st.getFont());
                     cell.setPhrase(new Phrase(data.toString(), font));
@@ -160,10 +196,10 @@ public class PdfConstructor implements DocumentConstructor {
         }
     }
 
-    private void applyCellSize(PdfPCell cell, int width, int height){
-        if(width != -1){
+    private void applyCellSize(PdfPCell cell, int width, int height) {
+        if (width != -1) {
             PdfPTable table = cell.getTable();
-            table.setTotalWidth((float)width/1000);
+            table.setTotalWidth((float) width / 1000);
         }
 //        if(height != -1){
 //            cell.setFixedHeight((float)height/50);
@@ -171,9 +207,9 @@ public class PdfConstructor implements DocumentConstructor {
 
     }
 
-    private void applyStyleToCell(PdfPCell cell, Style st){
+    private void applyStyleToCell(PdfPCell cell, Style st) {
         PdfStyle pst = this.styles.get(st);
-        if(pst == null) return;
+        if (pst == null) return;
         cell.setBorder(pst.getBorder());
         cell.setHorizontalAlignment(pst.getH_align());
         cell.setVerticalAlignment(pst.getV_align());
@@ -181,9 +217,9 @@ public class PdfConstructor implements DocumentConstructor {
         cell.setNoWrap(pst.getNoWrap());
     }
 
-    private void fillStyles(Collection<Style> styles){
-        for(Style s : styles){
-            if(this.styles.containsKey(s)) continue;
+    private void fillStyles(Collection<Style> styles) {
+        for (Style s : styles) {
+            if (this.styles.containsKey(s)) continue;
             PdfStyle ps = new PdfStyle(s);
             this.styles.put(s, ps);
         }
@@ -211,7 +247,12 @@ public class PdfConstructor implements DocumentConstructor {
     }
 
     @Override
-    public Path writeToFile(String fileName) throws IOException {
-        return null;
+    public Path writeToFile() throws IOException {
+
+        System.out.println(document.isOpen());
+        document.close();
+        writer.close();
+        Path path = Paths.get(pathname);
+        return path;
     }
 }
