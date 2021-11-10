@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.*;
 import core.element.picture.PictureElement;
 import core.element.table.HeaderColumn;
 import core.element.table.Table;
+import core.element.table.TableRow;
 import core.element.text.TextBlock;
 import core.presentation.TableRowPresentation;
 import core.presentation.style.Style;
@@ -60,20 +61,28 @@ public class PdfConstructor implements DocumentConstructor {
     public <T extends TableRowPresentation> void createTable(Table<T> table) {
         try {
             PdfWriter.getInstance(document, new FileOutputStream("iTextTable.pdf"));
-
+            document.setPageSize(PageSize.A4.rotate());
             document.open();
 
             this.fillStyles(table.getAllStyles());
+            float[] relativeColumns = new float[table.getColumnCount()];
+            int arrIndex = 0;
 
-            PdfPTable pdfTable = new PdfPTable(table.getColumnCount());
+            for(int i = table.getLeftPosition(); i <= table.getRightPosition(); i++){
+                int columnWidth = table.getColumnWidth(i);
+                if(columnWidth == -1) columnWidth = 3000;
+                float width = (float)columnWidth / 50;
+                relativeColumns[arrIndex] = width;
+                arrIndex++;
+            }
+            PdfPTable pdfTable = new PdfPTable(relativeColumns);
+            float totalWidth = (document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin())
+                    * pdfTable.getWidthPercentage() / 100;
+            pdfTable.setTotalWidth(totalWidth);
+
             this.createTableHeaders(table, pdfTable);
+            this.createTableBody(table, pdfTable);
 
-            pdfTable.addCell("row 1, col 1");
-            pdfTable.addCell("row 1, col 2");
-            pdfTable.addCell("row 1, col 3");
-            pdfTable.addCell("row 2, col 1");
-            pdfTable.addCell("row 2, col 2");
-            pdfTable.addCell("row 2, col 3");
 
             document.add(pdfTable);
             document.close();
@@ -85,15 +94,12 @@ public class PdfConstructor implements DocumentConstructor {
     /**
      * INNER METHODS
      */
+
     private <T extends TableRowPresentation> void createTableHeaders(Table<T> table, PdfPTable pdfTable) {
 
         Style headerStyle = table.getHeaderStyle();
-
-//        Font font = this.convertFont(headerStyle);
         final List<HeaderColumn> headers = new ArrayList<>(table.getHeaders());
         headers.sort(Comparator.comparing(HeaderColumn::getStartPosition));
-
-//        BaseColor backgroundColor = this.convertColor(headerStyle.getBackgroundColor());
 
         final int maxLevel = table.getHeaders().first().getLevel();
         int currentRow = 1;
@@ -116,7 +122,7 @@ public class PdfConstructor implements DocumentConstructor {
                 bufferLength--;
                 rowSpan = maxLevel - currentRow + 1;
             }
-            this.setCellSize(cell, -1, table.getSizeHeaderRow() * rowSpan);
+            this.applyCellSize(cell, -1, table.getSizeHeaderRow());
             cell.setRowspan(rowSpan);
             cell.setColspan(hc.getLength());
             PdfStyle pdfStyle = this.styles.get(headerStyle);
@@ -131,14 +137,38 @@ public class PdfConstructor implements DocumentConstructor {
         }
     }
 
-    private void setCellSize(PdfPCell cell, int width, int height){
-        if(height != -1){
-            cell.setCalculatedHeight((float)height/50);
+    private <T extends TableRowPresentation> void createTableBody(Table<T> table, PdfPTable pdfTable) {
+
+        List<TableRow> rows = table.getRows();
+
+        for (TableRow tr : rows) {
+            while (tr.hasNext()) {
+                TableRow.Cell tableCell = tr.next();
+                Object data = tableCell.getData();
+                Style st = table.getCellStyle(tableCell);
+                PdfPCell cell = new PdfPCell();
+                this.applyStyleToCell(cell, st);
+
+                if(data instanceof PictureElement) System.out.println("picture");
+                else if(data != null) {
+                    PdfStyle pdfStyle = this.styles.get(st);
+                    Font font = pdfStyle != null ? pdfStyle.getFont() : PdfStyle.convertFont(st.getFont());
+                    cell.setPhrase(new Phrase(data.toString(), font));
+                }
+                pdfTable.addCell(cell);
+            }
         }
+    }
+
+    private void applyCellSize(PdfPCell cell, int width, int height){
         if(width != -1){
             PdfPTable table = cell.getTable();
             table.setTotalWidth((float)width/1000);
         }
+//        if(height != -1){
+//            cell.setFixedHeight((float)height/50);
+//        }
+
     }
 
     private void applyStyleToCell(PdfPCell cell, Style st){
@@ -158,6 +188,7 @@ public class PdfConstructor implements DocumentConstructor {
             this.styles.put(s, ps);
         }
     }
+
 
     @Override
     public void createTextBlock(TextBlock text) {
