@@ -63,6 +63,8 @@ public class PdfConstructor implements DocumentConstructor {
 
             document.open();
 
+            this.fillStyles(table.getAllStyles());
+
             PdfPTable pdfTable = new PdfPTable(table.getColumnCount());
             this.createTableHeaders(table, pdfTable);
 
@@ -87,11 +89,11 @@ public class PdfConstructor implements DocumentConstructor {
 
         Style headerStyle = table.getHeaderStyle();
 
-        Font font = this.convertFont(headerStyle);
+//        Font font = this.convertFont(headerStyle);
         final List<HeaderColumn> headers = new ArrayList<>(table.getHeaders());
         headers.sort(Comparator.comparing(HeaderColumn::getStartPosition));
 
-        BaseColor backgroundColor = this.convertColor(headerStyle.getBackgroundColor());
+//        BaseColor backgroundColor = this.convertColor(headerStyle.getBackgroundColor());
 
         final int maxLevel = table.getHeaders().first().getLevel();
         int currentRow = 1;
@@ -102,7 +104,7 @@ public class PdfConstructor implements DocumentConstructor {
         while(i < headers.size()){
             HeaderColumn hc = headers.get(i);
             PdfPCell cell = new PdfPCell();
-            cell.setBackgroundColor(backgroundColor);
+            this.applyStyleToCell(cell, headerStyle);
             int rowSpan;
             if(hc.hasChild()) {
                 rowSpan = 1;
@@ -114,8 +116,11 @@ public class PdfConstructor implements DocumentConstructor {
                 bufferLength--;
                 rowSpan = maxLevel - currentRow + 1;
             }
+            this.setCellSize(cell, -1, table.getSizeHeaderRow() * rowSpan);
             cell.setRowspan(rowSpan);
             cell.setColspan(hc.getLength());
+            PdfStyle pdfStyle = this.styles.get(headerStyle);
+            Font font = pdfStyle != null ? pdfStyle.getFont() : PdfStyle.convertFont(headerStyle.getFont());
             cell.setPhrase(new Phrase(hc.getName(), font));
             pdfTable.addCell(cell);
 
@@ -124,6 +129,26 @@ public class PdfConstructor implements DocumentConstructor {
             }
             i++;
         }
+    }
+
+    private void setCellSize(PdfPCell cell, int width, int height){
+        if(height != -1){
+            cell.setCalculatedHeight((float)height/50);
+        }
+        if(width != -1){
+            PdfPTable table = cell.getTable();
+            table.setTotalWidth((float)width/1000);
+        }
+    }
+
+    private void applyStyleToCell(PdfPCell cell, Style st){
+        PdfStyle pst = this.styles.get(st);
+        if(pst == null) return;
+        cell.setBorder(pst.getBorder());
+        cell.setHorizontalAlignment(pst.getH_align());
+        cell.setVerticalAlignment(pst.getV_align());
+        cell.setBackgroundColor(pst.getBackgroundColor());
+        cell.setNoWrap(pst.getNoWrap());
     }
 
     private void fillStyles(Collection<Style> styles){

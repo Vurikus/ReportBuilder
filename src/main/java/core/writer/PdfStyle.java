@@ -19,12 +19,12 @@ public class PdfStyle {
 
     private Font font;
     private int border;
-    private int rowHeight;
-    private int columnWidth;
+//    private int rowHeight;
+//    private int columnWidth;
     private BaseColor backgroundColor;
     private int h_align;
     private int v_align;
-    private boolean noWrap = false;
+    private boolean noWrap;
 
     private static BaseFont baseFont;
 
@@ -58,9 +58,32 @@ public class PdfStyle {
     /**
      * METHODS
      */
-//    public static float convertPointLengthToPdfUnit(int points){
-//
-//    }
+
+
+    public Font getFont() {
+        return font;
+    }
+
+    public int getBorder() {
+        return border;
+    }
+
+    public BaseColor getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public int getH_align() {
+        return h_align;
+    }
+
+    public int getV_align() {
+        return v_align;
+    }
+
+    public boolean getNoWrap() {
+        return noWrap;
+    }
+
     public static int convertVerticalAlign(VerticalAlignment align){
         int a;
         switch (align){
