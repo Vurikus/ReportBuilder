@@ -71,6 +71,10 @@ public final class Style implements Cloneable{
         return st;
     }
 
+    public void setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
     @Override
     public Style clone() throws CloneNotSupportedException {
         Font fontClone = this.font.clone();

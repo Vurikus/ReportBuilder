@@ -22,8 +22,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Date now = new Date();
-        Date start = IntervalDate.roundDown(now, PeriodIntervalConstant.MONTH);
-        Date end = IntervalDate.roundUp(now, PeriodIntervalConstant.MONTH);
+        Date start = IntervalDate.roundDown(now, PeriodIntervalConstant.WEEK);
+        Date end = IntervalDate.roundUp(now, PeriodIntervalConstant.WEEK);
         IntervalDate interval = new IntervalDate(start, end);
 
         ExampleReportManager manager = new ExampleReportManager();

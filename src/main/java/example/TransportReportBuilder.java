@@ -8,6 +8,7 @@ import core.element.table.Table;
 import core.element.text.TextBlock;
 import core.presentation.style.Font;
 import core.presentation.style.Style;
+import core.util.ColorConstants;
 import core.util.IntervalDate;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;

@@ -36,22 +36,12 @@ public class PdfConstructor implements DocumentConstructor {
     private Map<Style, PdfStyle> styles;
     private boolean appliedSetting = false;
 
-//    private BaseFont baseFont;
-
     /**
      * CONSTRUCTORS
      */
     PdfConstructor() {
         document = new Document();
         styles = new HashMap<>();
-
-//        this.pathname = fileName + "_" + new Date().getTime() + ".pdf";
-//        File file = new File("../" + pathname);
-//        try {
-//            writer = PdfWriter.getInstance(document, new FileOutputStream(file));
-//        } catch (DocumentException | FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
     }
 
     /**
@@ -95,6 +85,8 @@ public class PdfConstructor implements DocumentConstructor {
                 arrIndex++;
             }
             PdfPTable pdfTable = new PdfPTable(relativeColumns);
+            Font font = this.styles.get(table.getHeaderStyle()).getFont();
+            pdfTable.setSpacingBefore(font.getSize());
             float totalWidth = (document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin())
                     * pdfTable.getWidthPercentage() / 100;
             pdfTable.setTotalWidth(totalWidth);
@@ -211,7 +203,16 @@ public class PdfConstructor implements DocumentConstructor {
 
     @Override
     public void createTextBlock(TextBlock text) {
-
+        try {
+            PdfStyle pst = new PdfStyle(text.getStyle());
+            Chunk ch = new Chunk(text.getBody(), pst.getFont());
+            ch.setBackground(pst.getBackgroundColor());
+            Paragraph p = new Paragraph(ch);
+            p.setAlignment(pst.getH_align());
+            document.add(p);
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -225,10 +226,10 @@ public class PdfConstructor implements DocumentConstructor {
             float v = ((Number) ps.get(PrintSetting.ALL_MARGIN)).floatValue() * 10;
             document.setMargins(v, v, v, v);
         } else {
-            float lm = ps.hasSetting(PrintSetting.LEFT_MARGIN) ? ((Number) ps.get(PrintSetting.LEFT_MARGIN)).floatValue() * 10 : 0;
-            float rm = ps.hasSetting(PrintSetting.RIGHT_MARGIN) ? ((Number) ps.get(PrintSetting.RIGHT_MARGIN)).floatValue() * 10 : 0;
+            float lm = ps.hasSetting(PrintSetting.LEFT_MARGIN) ? ((Number) ps.get(PrintSetting.LEFT_MARGIN)).floatValue() * 10 : 20;
+            float rm = ps.hasSetting(PrintSetting.RIGHT_MARGIN) ? ((Number) ps.get(PrintSetting.RIGHT_MARGIN)).floatValue() * 10 : 20;
             float tm = ps.hasSetting(PrintSetting.TOP_MARGIN) ? ((Number) ps.get(PrintSetting.TOP_MARGIN)).floatValue() * 10 : 30;
-            float bm = ps.hasSetting(PrintSetting.BOTTOM_MARGIN) ? ((Number) ps.get(PrintSetting.BOTTOM_MARGIN)).floatValue() * 10 : 30;
+            float bm = ps.hasSetting(PrintSetting.BOTTOM_MARGIN) ? ((Number) ps.get(PrintSetting.BOTTOM_MARGIN)).floatValue() * 10 : 20;
             document.setMargins(lm, rm, tm, bm);
         }
         Rectangle paperSize;
