@@ -14,8 +14,8 @@ import java.util.Comparator;
  */
 @TotalLine(title = "Итого среднее: ", titlePosition = 1, lineStyle = @TextStyle(backgroundColor = ColorConstants.GRAY, h_align = HorizontalAlignment.CENTER))
 @GroupTotalLine(title = "Среднее: ", lineStyle = @TextStyle(backgroundColor = ColorConstants.LIGHT_GRAY, h_align = HorizontalAlignment.CENTER), groupByColumn = 1)
-@HeaderStyle(backgroundColor = ColorConstants.RED, fontColor = ColorConstants.WHITE, fontSize = 7, bold = true, italic = true, height = 800)
-@TextStyle(h_align = HorizontalAlignment.CENTER, height = 400)
+@HeaderStyle(backgroundColor = ColorConstants.RED, fontColor = ColorConstants.WHITE)
+@TextStyle(h_align = HorizontalAlignment.LEFT, height = 400)
 @MultiJoinTableColumn(values = {
         @JoinTableColumn(firstColumn = 0, lastColumn = 3, name = "SUPER PUPER TOP LEVEL", level = 5),
         @JoinTableColumn(firstColumn = 0, lastColumn = 3, name = "SUPER TEST LEVEL", level = 4),

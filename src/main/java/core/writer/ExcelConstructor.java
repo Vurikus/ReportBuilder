@@ -53,12 +53,14 @@ public class ExcelConstructor implements DocumentConstructor {
         return book.getSheetIndex(currentSheet);
     }
 
-    public int createNewPageAndSetCurrent(String sheetName) {
+    public int createNewPageAndSetCurrent(String sheetName, PrintSetting ps) {
         if(currentSheet == null) this.pathname = sheetName + "_" + new Date().getTime() + ".xlsx";
         Sheet sh = book.createSheet(sheetName);
         sheets.add(sh);
         currentSheet = sh;
-        return sheets.size() - 1;
+        int sheetIndex = sheets.size() - 1;
+        this.setPrintSetting(sheetIndex, ps);
+        return sheetIndex;
     }
 
     @Override
@@ -108,15 +110,13 @@ public class ExcelConstructor implements DocumentConstructor {
         CellUtil.createCell(row, text.getLeftPosition(), text.getBody(), cs);
     }
 
-    @Override
-    public void setPrintSetting(PrintSetting ps) {
+    protected void setPrintSetting(PrintSetting ps) {
         for (int i = 0; i < sheets.size(); i++) {
             this.setPrintSetting(i, ps);
         }
     }
 
-    @Override
-    public void setPrintSetting(int pageIndex, PrintSetting ps) {
+    protected void setPrintSetting(int pageIndex, PrintSetting ps) {
         Sheet sheet = sheets.get(pageIndex);
 
         int topRow = ps.hasSetting(PrintSetting.TOP_PRINT_AREA) ? (Integer) ps.get(PrintSetting.TOP_PRINT_AREA) : sheet.getTopRow();

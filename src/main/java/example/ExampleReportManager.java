@@ -14,16 +14,14 @@ import java.nio.file.Path;
 public class ExampleReportManager extends ReportManager {
 
     public Path createTransportReport(Format format, IntervalDate interval) throws IOException {
-        final String fileName = "Отчет о работе транспорта";
         TransportReportBuilder reportBuilder = new TransportReportBuilder();
         Report[] reports = reportBuilder.build(interval);
 
         PrintSetting ps = this.getDefaultPrintSetting();
         DocumentConstructor constructor = DocumentConstructorFactory.getConstructor(format);
         for (Report report : reports) {
-            constructor.createNewPageAndSetCurrent(report.getReportName());
+            constructor.createNewPageAndSetCurrent(report.getReportName(), ps);
             this.createElementsFromReport(constructor, report);
-            constructor.setPrintSetting(constructor.getCurrentPageIndex(), ps);
         }
         return constructor.writeToFile();
     }

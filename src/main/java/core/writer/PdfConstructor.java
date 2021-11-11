@@ -1,5 +1,8 @@
 package core.writer;
 
+//import com.itextpdf.kernel.pdf.PdfDocument;
+//import com.itextpdf.layout.Document;
+
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import core.element.picture.MultiBarLine;
@@ -10,6 +13,8 @@ import core.element.table.TableRow;
 import core.element.text.TextBlock;
 import core.presentation.TableRowPresentation;
 import core.presentation.style.Style;
+import org.apache.poi.ss.usermodel.PrintSetup;
+import org.apache.poi.ss.usermodel.Sheet;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -17,6 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
+
+import static core.writer.PrintSetting.LANDSCAPE;
 
 /**
  * @author Усольцев Иван
@@ -27,6 +34,7 @@ public class PdfConstructor implements DocumentConstructor {
     private PdfWriter writer;
     private String pathname;
     private Map<Style, PdfStyle> styles;
+    private boolean appliedSetting = false;
 
 //    private BaseFont baseFont;
 
@@ -51,8 +59,8 @@ public class PdfConstructor implements DocumentConstructor {
      */
 
     @Override
-    public int createNewPageAndSetCurrent(String pageName) {
-        if(writer == null){
+    public int createNewPageAndSetCurrent(String pageName, PrintSetting setting) {
+        if (writer == null) {
             this.pathname = pageName + "_" + new Date().getTime() + ".pdf";
             File file = new File("../" + pathname);
             try {
@@ -60,10 +68,9 @@ public class PdfConstructor implements DocumentConstructor {
             } catch (DocumentException | FileNotFoundException e) {
                 e.printStackTrace();
             }
-            document.setPageSize(PageSize.A4.rotate());
+            this.setPrintSetting(setting);
             document.open();
         }
-//        if(!document.isOpen()) document.open();
         document.newPage();
         return this.getCurrentPageIndex();
     }
@@ -76,13 +83,6 @@ public class PdfConstructor implements DocumentConstructor {
     @Override
     public <T extends TableRowPresentation> void createTable(Table<T> table) {
         try {
-//            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("iTextTable.pdf"));
-
-
-
-
-//            writer.setPageEmpty(false);
-//            document.newPage();
             this.fillStyles(table.getAllStyles());
             float[] relativeColumns = new float[table.getColumnCount()];
             int arrIndex = 0;
@@ -101,9 +101,7 @@ public class PdfConstructor implements DocumentConstructor {
 
             this.createTableHeaders(table, pdfTable);
             this.createTableBody(table, pdfTable);
-
             document.add(pdfTable);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,7 +110,6 @@ public class PdfConstructor implements DocumentConstructor {
     /**
      * INNER METHODS
      */
-
     private <T extends TableRowPresentation> void createTableHeaders(Table<T> table, PdfPTable pdfTable) {
 
         Style headerStyle = table.getHeaderStyle();
@@ -139,7 +136,6 @@ public class PdfConstructor implements DocumentConstructor {
                 bufferLength--;
                 rowSpan = maxLevel - currentRow + 1;
             }
-            this.applyCellSize(cell, -1, table.getSizeHeaderRow());
             cell.setRowspan(rowSpan);
             cell.setColspan(hc.getLength());
             PdfStyle pdfStyle = this.styles.get(headerStyle);
@@ -166,14 +162,14 @@ public class PdfConstructor implements DocumentConstructor {
                 PdfPCell cell = new PdfPCell();
                 this.applyStyleToCell(cell, st);
 
-                if (data instanceof PictureElement){
+                if (data instanceof PictureElement) {
                     try {
                         PictureElement pe = (PictureElement) data;
-                        if(pe instanceof MultiBarLine) {
+                        if (pe instanceof MultiBarLine) {
                             short rowHeight = tr.getHeight();
                             int columnIndex = table.getLeftPosition() + tr.getReadIndex();
                             int columnWidth = table.getColumnWidth(columnIndex);
-                            if(columnWidth != -1){
+                            if (columnWidth != -1) {
                                 float factor = (float) columnWidth / rowHeight;
                                 int a = Math.round(pe.getWidth() / factor);
                                 pe.resize(pe.getWidth(), a);
@@ -185,8 +181,7 @@ public class PdfConstructor implements DocumentConstructor {
                     } catch (IOException | BadElementException e) {
                         e.printStackTrace();
                     }
-                }
-                else if (data != null) {
+                } else if (data != null) {
                     PdfStyle pdfStyle = this.styles.get(st);
                     Font font = pdfStyle != null ? pdfStyle.getFont() : PdfStyle.convertFont(st.getFont());
                     cell.setPhrase(new Phrase(data.toString(), font));
@@ -194,17 +189,6 @@ public class PdfConstructor implements DocumentConstructor {
                 pdfTable.addCell(cell);
             }
         }
-    }
-
-    private void applyCellSize(PdfPCell cell, int width, int height) {
-        if (width != -1) {
-            PdfPTable table = cell.getTable();
-            table.setTotalWidth((float) width / 1000);
-        }
-//        if(height != -1){
-//            cell.setFixedHeight((float)height/50);
-//        }
-
     }
 
     private void applyStyleToCell(PdfPCell cell, Style st) {
@@ -225,7 +209,6 @@ public class PdfConstructor implements DocumentConstructor {
         }
     }
 
-
     @Override
     public void createTextBlock(TextBlock text) {
 
@@ -236,14 +219,37 @@ public class PdfConstructor implements DocumentConstructor {
 
     }
 
-    @Override
-    public void setPrintSetting(PrintSetting ps) {
+    protected void setPrintSetting(PrintSetting ps) {
 
-    }
-
-    @Override
-    public void setPrintSetting(int pageIndex, PrintSetting ps) {
-
+        if (ps.hasSetting(PrintSetting.ALL_MARGIN)) {
+            float v = ((Number) ps.get(PrintSetting.ALL_MARGIN)).floatValue() * 10;
+            document.setMargins(v, v, v, v);
+        } else {
+            float lm = ps.hasSetting(PrintSetting.LEFT_MARGIN) ? ((Number) ps.get(PrintSetting.LEFT_MARGIN)).floatValue() * 10 : 0;
+            float rm = ps.hasSetting(PrintSetting.RIGHT_MARGIN) ? ((Number) ps.get(PrintSetting.RIGHT_MARGIN)).floatValue() * 10 : 0;
+            float tm = ps.hasSetting(PrintSetting.TOP_MARGIN) ? ((Number) ps.get(PrintSetting.TOP_MARGIN)).floatValue() * 10 : 30;
+            float bm = ps.hasSetting(PrintSetting.BOTTOM_MARGIN) ? ((Number) ps.get(PrintSetting.BOTTOM_MARGIN)).floatValue() * 10 : 30;
+            document.setMargins(lm, rm, tm, bm);
+        }
+        Rectangle paperSize;
+        if (ps.hasSetting(PrintSetting.PAPER_SIZE)) {
+            Number num = (Number) ps.get(PrintSetting.PAPER_SIZE);
+            switch (num.shortValue()) {
+                case 3:
+                    paperSize = PageSize.A3;
+                    break;
+                case 4:
+                    paperSize = PageSize.A4;
+                    break;
+                case 5:
+                    paperSize = PageSize.A5;
+                    break;
+                default:
+                    throw new IllegalArgumentException("Use allowed short values from " + PrintSetting.PaperSize.class.getName());
+            }
+        } else paperSize = PageSize.A4;
+        if (ps.hasSetting(PrintSetting.LANDSCAPE))  paperSize = paperSize.rotate();
+        document.setPageSize(paperSize);
     }
 
     @Override

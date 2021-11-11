@@ -44,4 +44,13 @@ public class PrintSetting {
     public boolean hasSetting(Short settingCode){
         return this.setting.containsKey(settingCode);
     }
+
+    public class PaperSize {
+        public final Short A3 = 3;
+        public final Short A4 = 4;
+        public final Short A5 = 5;
+
+        private PaperSize() {
+        }
+    }
 }
