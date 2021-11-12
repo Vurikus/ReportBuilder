@@ -7,18 +7,28 @@ import core.Format;
  */
 public class DocumentConstructorFactory {
 
+    private String path = "../";
+
     /**
      * CONSTRUCTORS
      */
-    private DocumentConstructorFactory(){}
+    public DocumentConstructorFactory(){}
 
     /**
      * METHODS
      */
-    public static DocumentConstructor getConstructor(Format format){
-        if(format == Format.EXCEL) return new ExcelConstructor();
-        else if(format == Format.PDF) return new PdfConstructor();
+    public DocumentConstructor getConstructor(Format format){
+        if(format == Format.EXCEL) return new ExcelConstructor(path);
+        else if(format == Format.PDF) return new PdfConstructor(path);
         else throw new IllegalArgumentException("Формат пока не реализован");
+
     }
 
+    public String getReportSavePath() {
+        return path;
+    }
+
+    public void setReportSavePath(String path) {
+        this.path = path;
+    }
 }

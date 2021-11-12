@@ -19,8 +19,6 @@ public class PdfStyle {
 
     private Font font;
     private int border;
-//    private int rowHeight;
-//    private int columnWidth;
     private BaseColor backgroundColor;
     private int h_align;
     private int v_align;
@@ -30,7 +28,7 @@ public class PdfStyle {
 
     static{
         try {
-            baseFont = BaseFont.createFont("font.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            baseFont = BaseFont.createFont("PT_Sans.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         }catch(Exception e){
             e.printStackTrace();
             try {
@@ -47,8 +45,6 @@ public class PdfStyle {
     public PdfStyle(Style style) {
         this.font = convertFont(style.getFont());
         this.border = convertBorder(style.getBorder());
-//        this.rowHeight = rowHeight;
-//        this.columnWidth = columnWidth;
         this.backgroundColor = convertColor(style.getBackgroundColor());
         this.h_align = convertHorizontalAlign(style.getH_align());
         this.v_align = convertVerticalAlign(style.getV_align());

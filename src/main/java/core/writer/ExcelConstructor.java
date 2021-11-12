@@ -35,11 +35,11 @@ public class ExcelConstructor implements DocumentConstructor {
     /**
      * CONSTRUCTORS
      */
-    ExcelConstructor() {
+    ExcelConstructor(String path) {
         book = new XSSFWorkbook();
         sheets = new ArrayList<>();
         styles = new HashMap<>();
-
+        this.pathname = path;
     }
 
     /**
@@ -54,7 +54,7 @@ public class ExcelConstructor implements DocumentConstructor {
     }
 
     public int createNewPageAndSetCurrent(String sheetName, PrintSetting ps) {
-        if(currentSheet == null) this.pathname = sheetName + "_" + new Date().getTime() + ".xlsx";
+        if(currentSheet == null) this.pathname += sheetName + "_" + new Date().getTime() + ".xlsx";
         Sheet sh = book.createSheet(sheetName);
         sheets.add(sh);
         currentSheet = sh;
@@ -66,7 +66,7 @@ public class ExcelConstructor implements DocumentConstructor {
     @Override
     public Path writeToFile() throws IOException {
         long time = new Date().getTime();
-        File file = new File("../" + pathname);
+        File file = new File(pathname);
         try (FileOutputStream fos = new FileOutputStream(file)) {
             book.write(fos);
         }

@@ -18,7 +18,8 @@ public class ExampleReportManager extends ReportManager {
         Report[] reports = reportBuilder.build(interval);
 
         PrintSetting ps = this.getDefaultPrintSetting();
-        DocumentConstructor constructor = DocumentConstructorFactory.getConstructor(format);
+        DocumentConstructorFactory dcf = new DocumentConstructorFactory();
+        DocumentConstructor constructor = dcf.getConstructor(format);
         for (Report report : reports) {
             constructor.createNewPageAndSetCurrent(report.getReportName(), ps);
             this.createElementsFromReport(constructor, report);

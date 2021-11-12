@@ -4,7 +4,9 @@ package core.writer;
 //import com.itextpdf.layout.Document;
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import core.element.picture.MultiBarLine;
 import core.element.picture.PictureElement;
 import core.element.table.HeaderColumn;
@@ -13,17 +15,15 @@ import core.element.table.TableRow;
 import core.element.text.TextBlock;
 import core.presentation.TableRowPresentation;
 import core.presentation.style.Style;
-import org.apache.poi.ss.usermodel.PrintSetup;
-import org.apache.poi.ss.usermodel.Sheet;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
 import java.util.List;
-
-import static core.writer.PrintSetting.LANDSCAPE;
+import java.util.*;
 
 /**
  * @author Усольцев Иван
@@ -34,25 +34,24 @@ public class PdfConstructor implements DocumentConstructor {
     private PdfWriter writer;
     private String pathname;
     private Map<Style, PdfStyle> styles;
-    private boolean appliedSetting = false;
 
     /**
      * CONSTRUCTORS
      */
-    PdfConstructor() {
+    PdfConstructor(String path) {
         document = new Document();
         styles = new HashMap<>();
+        this.pathname = path;
     }
 
     /**
      * METHODS
      */
-
     @Override
     public int createNewPageAndSetCurrent(String pageName, PrintSetting setting) {
         if (writer == null) {
-            this.pathname = pageName + "_" + new Date().getTime() + ".pdf";
-            File file = new File("../" + pathname);
+            this.pathname += pageName + "_" + new Date().getTime() + ".pdf";
+            File file = new File(pathname);
             try {
                 writer = PdfWriter.getInstance(document, new FileOutputStream(file));
             } catch (DocumentException | FileNotFoundException e) {
@@ -249,14 +248,12 @@ public class PdfConstructor implements DocumentConstructor {
                     throw new IllegalArgumentException("Use allowed short values from " + PrintSetting.PaperSize.class.getName());
             }
         } else paperSize = PageSize.A4;
-        if (ps.hasSetting(PrintSetting.LANDSCAPE))  paperSize = paperSize.rotate();
+        if (ps.hasSetting(PrintSetting.LANDSCAPE)) paperSize = paperSize.rotate();
         document.setPageSize(paperSize);
     }
 
     @Override
     public Path writeToFile() throws IOException {
-
-        System.out.println(document.isOpen());
         document.close();
         writer.close();
         Path path = Paths.get(pathname);
