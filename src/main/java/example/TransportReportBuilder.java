@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 public class TransportReportBuilder implements ReportBuilder {
     @Override
-    public Report[] build(DateReportParameter interval, ReportParameter... parameter) {
+    public Report[] build(ReportParameter... parameter) {
         String reportNameTitle = "Отчет о работе транспорта";
         Report report = new Report(reportNameTitle);
         Table<TransportDiagramTableRow> table = new Table<>(TransportDiagramTableRow.class);
@@ -22,6 +22,7 @@ public class TransportReportBuilder implements ReportBuilder {
         report.addBody(table);
         int lp = table.getLeftPosition();
         int rp = table.getRightPosition();
+        DateReportParameter interval = (DateReportParameter) parameter[0];
         this.constructHeaderAndAddToReport(report, lp, rp, interval);
         return new Report[]{report};
     }

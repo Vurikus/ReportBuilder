@@ -16,6 +16,6 @@ public class Main {
         DateReportParameter interval = new DateReportParameter(start, end);
 
         ExampleReportManager manager = new ExampleReportManager();
-        manager.createTransportReport(Format.PDF, interval);
+        manager.createTransportReport(Format.EXCEL, interval);
     }
 }

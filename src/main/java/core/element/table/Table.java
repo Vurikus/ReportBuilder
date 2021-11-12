@@ -385,7 +385,7 @@ public class Table<T extends TableRowPresentation> implements Element {
             data = this.applyGrouping(indexGroupColumn);
             blockTotalRow = new TotalRow(columnCount, this.blockMetaDataTotal.styleIndex, this.leftPosition);
             mdcGroupingColumn = metaColumns.get(indexGroupColumn);
-            preGroupingValue = this.getColumnValue(data.get(0), mdcGroupingColumn);
+            if(!data.isEmpty()) preGroupingValue = this.getColumnValue(data.get(0), mdcGroupingColumn);
         } else data = this.data;
 
         if (hasTableTotalLine) {

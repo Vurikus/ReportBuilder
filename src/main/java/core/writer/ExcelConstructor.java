@@ -31,6 +31,7 @@ public class ExcelConstructor implements DocumentConstructor {
     private final Map<Style, CellStyle> styles;
     private Sheet currentSheet;
     private String pathname;
+    private PrintSetting currentPrintSetting;
 
     /**
      * CONSTRUCTORS
@@ -55,17 +56,19 @@ public class ExcelConstructor implements DocumentConstructor {
 
     public int createNewPageAndSetCurrent(String sheetName, PrintSetting ps) {
         if(currentSheet == null) this.pathname += sheetName + "_" + new Date().getTime() + ".xlsx";
+        else this.setPrintSetting(currentPrintSetting);
+        currentPrintSetting = ps;
         Sheet sh = book.createSheet(sheetName);
         sheets.add(sh);
         currentSheet = sh;
         int sheetIndex = sheets.size() - 1;
-        this.setPrintSetting(sheetIndex, ps);
+
         return sheetIndex;
     }
 
     @Override
     public Path writeToFile() throws IOException {
-        long time = new Date().getTime();
+        this.setPrintSetting(currentPrintSetting);
         File file = new File(pathname);
         try (FileOutputStream fos = new FileOutputStream(file)) {
             book.write(fos);
@@ -110,21 +113,21 @@ public class ExcelConstructor implements DocumentConstructor {
         CellUtil.createCell(row, text.getLeftPosition(), text.getBody(), cs);
     }
 
-    protected void setPrintSetting(PrintSetting ps) {
-        for (int i = 0; i < sheets.size(); i++) {
-            this.setPrintSetting(i, ps);
-        }
-    }
+//    protected void setPrintSetting(PrintSetting ps) {
+//        for (int i = 0; i < sheets.size(); i++) {
+//            this.setPrintSetting(i, ps);
+//        }
+//    }
 
-    protected void setPrintSetting(int pageIndex, PrintSetting ps) {
-        Sheet sheet = sheets.get(pageIndex);
+    protected void setPrintSetting(PrintSetting ps) {
+        Sheet sheet = this.currentSheet;
 
         int topRow = ps.hasSetting(PrintSetting.TOP_PRINT_AREA) ? (Integer) ps.get(PrintSetting.TOP_PRINT_AREA) : sheet.getTopRow();
         int bottomRow = ps.hasSetting(PrintSetting.BOTTOM_PRINT_AREA) ? (Integer) ps.get(PrintSetting.BOTTOM_PRINT_AREA) : sheet.getLastRowNum();
         int leftCol = ps.hasSetting(PrintSetting.LEFT_PRINT_AREA) ? (Integer) ps.get(PrintSetting.LEFT_PRINT_AREA) : sheet.getLeftCol();
         int rightCol = ps.hasSetting(PrintSetting.RIGHT_PRINT_AREA) ? (Integer) ps.get(PrintSetting.RIGHT_PRINT_AREA) : sheet.getRow(topRow).getLastCellNum();
 
-        book.setPrintArea(pageIndex, leftCol, rightCol, topRow, bottomRow);
+        book.setPrintArea(this.book.getSheetIndex(sheet), leftCol, rightCol, topRow, bottomRow);
         boolean landscape = false;
         if (ps.hasSetting(PrintSetting.LANDSCAPE)) landscape = (Boolean) ps.get(PrintSetting.LANDSCAPE);
         else{

@@ -7,5 +7,5 @@ package core;
  */
 public interface ReportBuilder {
 
-    Report[] build(DateReportParameter interval, ReportParameter ... parameter);
+    Report[] build(ReportParameter ... parameter);
 }
