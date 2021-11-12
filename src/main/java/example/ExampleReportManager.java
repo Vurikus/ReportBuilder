@@ -3,7 +3,7 @@ package example;
 import core.Format;
 import core.Report;
 import core.ReportManager;
-import core.util.IntervalDate;
+import core.DateReportParameter;
 import core.writer.DocumentConstructor;
 import core.writer.DocumentConstructorFactory;
 import core.writer.PrintSetting;
@@ -13,7 +13,7 @@ import java.nio.file.Path;
 
 public class ExampleReportManager extends ReportManager {
 
-    public Path createTransportReport(Format format, IntervalDate interval) throws IOException {
+    public Path createTransportReport(Format format, DateReportParameter interval) throws IOException {
         TransportReportBuilder reportBuilder = new TransportReportBuilder();
         Report[] reports = reportBuilder.build(interval);
 

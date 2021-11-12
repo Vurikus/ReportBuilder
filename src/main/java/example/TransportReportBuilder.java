@@ -2,21 +2,19 @@ package example;
 
 import core.Report;
 import core.ReportBuilder;
-import core.PropertyReportParameter;
 import core.ReportParameter;
 import core.element.table.Table;
 import core.element.text.TextBlock;
 import core.presentation.style.Font;
 import core.presentation.style.Style;
-import core.util.ColorConstants;
-import core.util.IntervalDate;
+import core.DateReportParameter;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 public class TransportReportBuilder implements ReportBuilder {
     @Override
-    public Report[] build(IntervalDate interval, ReportParameter... parameter) {
+    public Report[] build(DateReportParameter interval, ReportParameter... parameter) {
         String reportNameTitle = "Отчет о работе транспорта";
         Report report = new Report(reportNameTitle);
         Table<TransportDiagramTableRow> table = new Table<>(TransportDiagramTableRow.class);
@@ -28,7 +26,7 @@ public class TransportReportBuilder implements ReportBuilder {
         return new Report[]{report};
     }
 
-    private void constructHeaderAndAddToReport(Report report, int startPos, int lastPos, IntervalDate interval) {
+    private void constructHeaderAndAddToReport(Report report, int startPos, int lastPos, DateReportParameter interval) {
         String orgNameTitle = "ООО \"Добровоз\"";
         String intervalTitle = "Сформировано за период с " + interval.asText();
         Font headerFont = new Font(Font.TIMES_NEW_ROMAN, 12);

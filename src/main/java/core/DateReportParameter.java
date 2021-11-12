@@ -1,10 +1,12 @@
-package core.util;
+package core;
+
+import core.util.PeriodIntervalConstant;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class IntervalDate implements Cloneable{
+public class DateReportParameter implements Cloneable, ReportParameter {
 
     private Date start;
     private Date end;
@@ -13,7 +15,7 @@ public class IntervalDate implements Cloneable{
     /**
      * CONSTRUCTORS
      */
-    public IntervalDate(Date start, Date end) {
+    public DateReportParameter(Date start, Date end) {
         this.start = start;
         this.end = end;
     }
@@ -114,12 +116,12 @@ public class IntervalDate implements Cloneable{
     }
 
     @Override
-    public IntervalDate clone() {
+    public DateReportParameter clone() {
         try {
-            return (IntervalDate)super.clone();
+            return (DateReportParameter)super.clone();
         }catch(Exception e){
             e.printStackTrace();
-            return new IntervalDate(this.start, this.end);
+            return new DateReportParameter(this.start, this.end);
         }
     }
 }

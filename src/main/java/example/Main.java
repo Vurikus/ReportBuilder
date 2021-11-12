@@ -1,30 +1,19 @@
 package example;
 
 import core.Format;
-import core.Report;
-import core.ReportManager;
-import core.element.Element;
-import core.element.table.Table;
-import core.element.text.TextBlock;
-import core.presentation.TableRowPresentation;
-import core.util.IntervalDate;
+import core.DateReportParameter;
 import core.util.PeriodIntervalConstant;
-import core.writer.DocumentConstructor;
-import core.writer.DocumentConstructorFactory;
-import core.writer.PrintSetting;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
         Date now = new Date();
-        Date start = IntervalDate.roundDown(now, PeriodIntervalConstant.WEEK);
-        Date end = IntervalDate.roundUp(now, PeriodIntervalConstant.WEEK);
-        IntervalDate interval = new IntervalDate(start, end);
+        Date start = DateReportParameter.roundDown(now, PeriodIntervalConstant.WEEK);
+        Date end = DateReportParameter.roundUp(now, PeriodIntervalConstant.WEEK);
+        DateReportParameter interval = new DateReportParameter(start, end);
 
         ExampleReportManager manager = new ExampleReportManager();
         manager.createTransportReport(Format.PDF, interval);
