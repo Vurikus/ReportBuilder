@@ -14,7 +14,7 @@
 
     <groupId>my.vurikus</groupId>
     <artifactId>ReportBuilder</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
     <url>https://github.com/Vurikus/ReportBuilder</url>
 
     <dependencies>
