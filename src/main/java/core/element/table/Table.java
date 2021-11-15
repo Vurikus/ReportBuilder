@@ -308,9 +308,10 @@ public class Table<T extends TableRowPresentation> implements Element {
     }
 
     private Object getColumnValue(T t, MetaDataColumn mdc) {
-        Object fieldValue;
+        Object fieldValue = null;
         try {
             fieldValue = mdc.getMethod.invoke(t);
+            if(fieldValue == null) return "";
             if (fieldValue instanceof String) {
                 String str = (String) fieldValue;
                 if (mdc.hasFormatPattern()) str = Formatter.applyRegularExpression(str, mdc.formatPattern);
